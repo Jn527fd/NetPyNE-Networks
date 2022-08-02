@@ -1,4 +1,5 @@
 #import NetPyNE libary
+#does not use the files in the "cell" or "mod" folders
 from netpyne import specs, sim
 
 netParams = spec.NetParams() # parameters of the network
