@@ -15,26 +15,57 @@ simConfig.hParams['celsius'] = 37
 numCells = 100
 connList = [[i,i] for i in range(numCells)]
 
-netParams.popParams['artif1'] = {'cellModel': 'NetStim', 'numCells': numCells, 'rate':  'variable', 'noise': 0, 'start': 0, 'seed': 2}  # pop of NetStims
+netParams.popParams['artif1'] = {
+  'cellModel': 'NetStim', 
+  'numCells': numCells, 
+  'rate':  'variable', 
+  'noise': 0, 
+  'start': 0, 
+  'seed': 2
+}  # pop of NetStims
 
 useArtif = True # False
 
-netParams.synMechParams['AMPA'] = {'mod': 'Exp2Syn', 'tau1': 0.05, 'tau2': 5.3, 'e': 0}  # excitatory synaptic mechanism
+netParams.synMechParams['AMPA'] = {
+  'mod': 'Exp2Syn', 
+  'tau1': 0.05, 
+  'tau2': 5.3, 
+  'e': 0
+}  # excitatory synaptic mechanism
 
 if useArtif:
-  netParams.popParams['artif3'] = {'cellModel': 'INTF7', 'numCells': numCells}#, 'taue': 5.0, 'taui1':10,'taui2':20,'taum':50}  # pop of IntFire4
-  simConfig.recordTraces = {'V_soma':{'var':'Vm'}}  # Dict with traces to record  
+  netParams.popParams['artif3'] = {
+    'cellModel': 'INTF7', 
+    'numCells': numCells
+  }#, 'taue': 5.0, 'taui1':10,'taui2':20,'taum':50}  # pop of IntFire4
+  
+  simConfig.recordTraces = {
+    'V_soma':{'var':'Vm'}
+  }  # Dict with traces to record  
+  
 else:
-  netParams.popParams['artif3'] = {'numCells': numCells, 'cellModel': 'Mainen'}
+  netParams.popParams['artif3'] = {
+    'numCells': numCells, 
+    'cellModel': 'Mainen'
+  }
+  
   #netParams.importCellParams(label='PYR_Mainen_rule', conds={'cellType': ['artif3']}, fileName='cells/mainen.py', cellName='PYR2')
+  
   netParams.importCellParams(label='PYR_Mainen_rule', conds={'cellType': ['artif3']}, fileName='cells/mainen.py', cellName='PYR2')
   netParams.cellParams['PYR_Mainen_rule']['secs']['soma']['threshold'] = 0.0
-  simConfig.recordTraces = {'V_soma':{'sec':'soma','loc':0.5,'var':'v'}}  # Dict with traces to record
+  
+  simConfig.recordTraces = {
+    'V_soma':{'sec':'soma',
+              'loc':0.5,
+              'var':'v'
+             }
+  }  # Dict with traces to record
 
 # Connections
 k = 'artif1->artif3'
 netParams.connParams[k] = {
-    'preConds': {'pop': 'artif1'}, 'postConds': {'pop': 'artif3'},
+    'preConds': {'pop': 'artif1'},
+    'postConds': {'pop': 'artif3'},
     #'probability': 0.2,
     'connList': connList,
     'weight': 10,
