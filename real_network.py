@@ -74,7 +74,7 @@ netParams.stimSourceParams['Input1'] = {
     'del' : 300, 
     'dur' : 100, 
     'amp' : 'uniform(0.4,0.5)'}
-}
+
 
 netParams.stimTargerParams['Input1->A'] = {
     'source'  : 'Input_1', 
