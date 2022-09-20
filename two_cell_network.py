@@ -1,177 +1,127 @@
-from netpyne import specs, sim
+from netpyne import specs
+
+###############################################################################
+# NETWORK PARAMETERS
+###############################################################################
 
 netParams = specs.NetParams()
-simConfig = specs.SimConfig()
 
-simConfig.hParams['celsius'] = 37
-
-#########################
-# Population Parameters #
-#########################
-netParams.popParams['Pyramidal'] = {
-    'cellType'  : 'Pyramidalcell',
-    'numCells'  : 1,
-    'cellModel' : 'Pyramidal_model'}
-
-netParams.popParams['Pyramidal_two'] = {
-    'cellType'  : 'Pyramidalcell_two',
-    'numCells'  : 1,
-    'cellModel' : 'Pyramidal_model2'}
-
-##########################
-# Import Cell Parameters #
-##########################
+############################
+# Cell parameters imported #
+############################
 
 netParams.importCellParams(
-    label          = 'Pyramidalcell',
-    conds          = {'cellType' : 'Pyramidalcell',
-                        'cellModel' : 'Pyramidal_model'},
-    fileName       = 'cells/main_cell.py',
-    cellName       = 'PYR2',
-    importSynMechs = False)
+        label    = 'PYR_Mainen_rule',
+        conds    = {'cellType' : 'PYR', 'cellModel':'Mainen'},
+        fileName = 'cells/main_cell.py',
+        cellName = 'PYR2')
 
-netParams.importCellParams(
-    label          = 'Pyramidalcell_two',
-    conds          = {'cellType' : 'Pyramidalcell_two',
-                        'cellModel' : 'Pyramidal_model2'},
-    fileName       = 'cells/main_cell.py',
-    cellName       = 'PYR2',
-    importSynMechs = False)
 
-cells=['Pyramidalcell', 'Pyramidalcell_two']
+#########################
+# Population parameters #
+#########################
+netParams.popParams['cell_one'] = {
+        'cellType': 'PYR',
+        'cellModel': 'Mainen',
+        'numCells': 1}
 
-for i in cells:
-    for sec in netParams.cellParams[i].secs:
-        netParams.cellParams[i].secs[sec].threshold = 0.0
-        
-#########################################
-# synapse of both neurons use STDP mech #
-#########################################
-netParams.synMechParams['STDP'] = {
-    'mod': 'STDP',
-    'RLon':1,
-    'RLlenhebb':200,
-    'RLhebbwt':0.001,
-    'RLwindhebb':50,
-    'wbase':0,
-    'wmax':2}
 
-""""
+netParams.popParams['cell_two'] = {
+        'numCells' : 1,
+        'cellModel': 'Mainen',
+        'cellType': 'PYR'}
+
+#################################
+# Synaptic mechanism parameters #
+#################################
 netParams.synMechParams['exc'] = {
-    'mod'  : 'Exp2Syn',
-    'tau1' : 0.1,
-    'tau2' : 1.0,
-    'e'    : 0}
-
-netParams.synMechParams['inh'] = {
-    'mod'  : 'Exp2Syn',
-    'tau1' : 0.1,
-    'tau2' : 1.0,
-    'e'    : -80}
-"""
-
-################################
-# stimulate one of the neurons #
-################################
-"""
-netParams.stimSourceParams['Input_2'] = {
-    'type': 'VClamp',
-    'dur': [0, 1, 1],
-    'amp':[1, 1, 1],
-    'gain': 1,
-    'rstim': 0,
-    'tau1': 1,
-    'tau2': 1,
-    'i': 1}
+        'mod': 'Exp2Syn',
+        'tau1': 0.1,
+        'tau2': 1.0,
+        'e': 0}
 
 
-netParams.stimTargerParams['Input_2->PYR'] = {
-    'source'  : 'Input_2',
-    'sec'     : 'soma',
-    'loc'     : 0.8,
-    'conds'   : {'pop':'Pyramidalcell'},
-    'weight'  : 0.1,
-    'delay'   : 1,
-    'synmech' : 'exc'}
-"""
+netParams.synMechParams['stdpsyn'] = {
+        'mod' : 'STDP',
+        'RLon' : 1,
+        'RLlenhebb' : 200,
+        'RLhebbwt' : 0.001,
+        'RLwindhebb' : 50,
+        'wbase' : 0,
+        'wmax' : 2}
 
-#################################
-# connect both Neurons together #
-#################################
-netParams.connParams['PYR->PYR2'] = {
-    'preConds'   : {'pop': 'Pyramidalcell'},
-    'postConds'  : {'pop': 'Pyramidalcell_two'},
-    'synMech'    : 'STDP',
-    'weight'     :  0.0015,
-    'delay'      :  1.0,
-    'loc'        :  0.6,
-    'sec'        :  'soma'}
 
-#########################
-# Simulation Parameters #
-#########################
-simConfig.duration = 0.5*1e3
-# Duration of the simulation, in ms
+#netParams.synMechParams['inh'] = {'mod': 'Exp2Syn', 'tau1': 0.1, 'tau2': 1.0, 'e': -80}
 
-simConfig.dt = 0.025
-# Internal integration timestep to use
 
-simConfig.verbose = False
-# Show detailed messages
+##########################
+# Stimulation parameters #
+##########################
+netParams.stimSourceParams['NetStim'] = {
+        'type': 'NetStim',
+        'rate': 50,
+        'noise': 10}
 
-simConfig.recordTraces = {'V_soma':{'sec':'soma','loc':0.99,'var':'v'}}
-# Dict with traces to record
 
-simConfig.recordStep = 1
-# Step size in ms to save data (eg. V traces, LFP, etc)
+netParams.stimTargetParams['NetStim->cell_two'] = {
+        'source': 'NetStim',
+        'conds': {'pop': 'cell_two'},
+        'weight': 1,
+        'delay': 5,
+        'synMech' : 'exc' }
 
-simConfig.filename = 'model_output'
-# Set file output name
 
-simConfig.savePickle = False
-# Save params, network and sim output to pickle file
+###########################
+# Connectivity parameters #
+###########################
+netParams.connParams['cell_one->cell_two'] = {
+        'preConds': {'pop': 'cell_one'},             # presynaptic conditions
+        'postConds': {'pop': 'cell_two'},     # postsynaptic conditions
+        'weight': 1.0,                          # weight of each connection
+        'synMech': 'stdpsyn',                   # target STDP  synapse
+        'delay': 6,                             #delay
+        'sec'   : 'soma'}
 
-simConfig.analysis['plotRaster'] = {'syncLines': True, 'saveFig': True}
-# Plot a raster
+###############################################################################
+# SIMULATION PARAMETERS
+###############################################################################
+simConfig = specs.SimConfig()  # object of class SimConfig to store simulation configuration
 
-simConfig.analysis['plotTraces'] = {'include': [1], 'saveFig': True}
-# Plot recorded traces for this list of cells
+# Simulation options
+simConfig.duration = 6*1e4        # Duration of the simulation, in ms
+simConfig.dt = 0.01                # Internal integration timestep to use
+simConfig.verbose = False         # Show detailed messages
+simConfig.recordCells = ['cell_one']
+simConfig.recordTraces['soma_voltage(cell_one)'] = { 'conds' : {'pop' : ['cell_one']}, 'sec' : 'soma', 'loc' : 0.5, 'var' : 'v' }  # Dict with traces to record
+simConfig.recordTraces['Na_con(cell_one)'] = { 'conds' : {'pop' : ['cell_one']}, 'sec': 'soma', 'loc': 0.5, 'var' : 'nai' }
+##simConfig.recordTraces['iK_con(cell_two)'] = {'sec' : 'dend', 'loc' : '0.5', 'var' : 'ik'}
+simConfig.recordStep = 1            # Step size in ms to save data (eg. V traces, LFP, etc)
+simConfig.filename = 'model_output' # Set file output name
+simConfig.savePickle = False        # Save params, network and sim output to pickle file
+#simConfig.analysis['plotRaster'] = {'syncLines': True, 'saveFig': True}      # Plot a raster
+simConfig.analysis['plotTraces'] = {'include': [1], 'saveFig': True}     # Plot recorded traces for this list of cells
+simConfig.analysis['plot2Dnet'] = {'saveFig': True}                          # plot 2D cell positions and connections
 
-simConfig.analysis['plot2Dnet'] = {'saveFig': True}
-# plot 2D cell positions and connections
+###############################################################################
+# EXECUTION CODE (via netpyne)
+###############################################################################
+from netpyne import sim
 
-######################
-# Run the simulation #
-######################
-sim.initialize(
-            simConfig = simConfig,
-            netParams = netParams)
-# create network object and set cfg and net params
-# pass simulation config and network params as arguments
-
-sim.net.createPops()
-# instantiate network populations
-
-sim.net.createCells()
-# instantiate network cells based on defined populations
-
-sim.net.connectCells()
-# create connections between cells based on params
-
-sim.net.addStims()
-# add stimulation
-
-sim.setupRecording()
-# setup variables to record for each cell (spikes, V traces, etc)
-
-sim.runSim()
-# run parallel Neuron simulation
-
-sim.gatherData()
-# gather spiking data and cell info from each node
-
-sim.saveData()
+# Create network and run simulation
+sim.initialize(                     # create network object and set cfg and net params
+                simConfig = simConfig,          # pass simulation config and network params as arguments
+                        netParams = netParams)
+sim.net.createPops()                # instantiate network populations
+sim.net.createCells()               # instantiate network cells based on defined populations
+sim.net.connectCells()              # create connections between cells based on params
+sim.net.addStims()                  # add stimulation
+sim.setupRecording()                # setup variables to record for each cell (spikes, V traces, etc)
+sim.runSim()                        # run parallel Neuron simulation
+sim.gatherData()                    # gather spiking data and cell info from each node
 # save params, cell info and sim output to file (pickle,mat,txt,etc)
+sim.analysis.plotData()             # plot spike raster
 
-sim.analysis.plotData()
-# plot spike raster
+
+
+
+
