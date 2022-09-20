@@ -85,15 +85,18 @@ netParams.connParams['cell_one->cell_two'] = {
 ###############################################################################
 # SIMULATION PARAMETERS
 ###############################################################################
+cell_population = 'cell_one'
+
+
 simConfig = specs.SimConfig()  # object of class SimConfig to store simulation configuration
 
 # Simulation options
 simConfig.duration = 6*1e4        # Duration of the simulation, in ms
 simConfig.dt = 0.01                # Internal integration timestep to use
 simConfig.verbose = False         # Show detailed messages
-simConfig.recordCells = ['cell_one']
-simConfig.recordTraces['soma_voltage(cell_one)'] = { 'conds' : {'pop' : ['cell_one']}, 'sec' : 'soma', 'loc' : 0.5, 'var' : 'v' }  # Dict with traces to record
-simConfig.recordTraces['Na_con(cell_one)'] = { 'conds' : {'pop' : ['cell_one']}, 'sec': 'soma', 'loc': 0.5, 'var' : 'nai' }
+simConfig.recordCells = [cell_population]
+simConfig.recordTraces['soma_voltage :' + cell_population] = {'sec' : 'soma', 'loc' : 0.5, 'var' : 'v' }  # Dict with traces to record
+simConfig.recordTraces['Na_conn :' + cell_population] = {'sec': 'soma', 'loc': 0.5, 'var' : 'nai' }
 ##simConfig.recordTraces['iK_con(cell_two)'] = {'sec' : 'dend', 'loc' : '0.5', 'var' : 'ik'}
 simConfig.recordStep = 1            # Step size in ms to save data (eg. V traces, LFP, etc)
 simConfig.filename = 'model_output' # Set file output name
