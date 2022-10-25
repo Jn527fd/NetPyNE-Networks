@@ -123,8 +123,3 @@ sim.runSim()                        # run parallel Neuron simulation
 sim.gatherData()                    # gather spiking data and cell info from each node
 # save params, cell info and sim output to file (pickle,mat,txt,etc)
 sim.analysis.plotData()             # plot spike raster
-
-
-
-
-
